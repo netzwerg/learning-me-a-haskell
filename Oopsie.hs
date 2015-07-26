@@ -35,33 +35,43 @@ play round total
 playRound :: Int -> IO Int
 playRound total = do
     putStrLn ("Round Total: " ++ show total) 
-    putStr   ("\nDare rolling a dice (Y) or bring home (ANY OTHER KEY)? ") 
+    putStr   ("\nDare rolling a dice (Y) or take home (ANY OTHER KEY)? ") 
     char <- getChar
     putStrLn ""
     case (toUpper char) of
         'Y'       -> do 
-                 roll <- rollDice
-                 case roll of 
-                     Count count -> playRound (total + count)
-                     Oopsie -> return 0
+            roll <- rollDice
+            print roll
+            silentlyWaitForKeyPress
+            case roll of 
+                Count count -> playRound (total + count)
+                Oopsie -> return 0
         otherwise -> return total 
 
 data Roll = Count Int | Oopsie
+instance Show Roll where
+    show (Count count) = 
+        "\n" ++
+        "\n       ---" ++
+        "\n      | " ++ show count ++ " |" ++ 
+        "\n       ---" ++
+        "\n"
+    show Oopsie        =
+        "\n" ++
+        "\n       ------------ " ++
+        "\n      | ! OOPSIE ! |" ++ 
+        "\n       ------------ " ++
+        "\n"
+
 
 rollDice :: IO Roll 
 rollDice = do
     number <- randomRIO (1, 6) :: IO Int 
     case number of
-        3         -> do 
-            putStrLn ("\n    ------------")
-            putStrLn ("   | ! OOPSIE ! |")
-            putStrLn ("    ------------\n")
-            hSetEcho stdin False
-            getChar
-            hSetEcho stdin True
-            return Oopsie 
-        otherwise -> do
-            putStrLn ("\n        ---")
-            putStrLn ("       | " ++ show number ++ " |") 
-            putStrLn ("        ---\n")
-            return $ Count number
+        3         -> do return Oopsie 
+        otherwise -> do return $ Count number
+
+silentlyWaitForKeyPress = do
+    hSetEcho stdin False
+    getChar
+    hSetEcho stdin True
