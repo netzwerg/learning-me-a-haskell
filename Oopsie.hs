@@ -42,7 +42,7 @@ playRound total = do
         'Y'       -> do 
                  roll <- rollDice
                  case roll of 
-                     Count a -> playRound (total + a)
+                     Count count -> playRound (total + count)
                      Oopsie -> return 0
         otherwise -> return total 
 
@@ -58,7 +58,7 @@ rollDice = do
             putStrLn ("    ------------\n")
             hSetEcho stdin False
             getChar
-            hSetEcho stdin False
+            hSetEcho stdin True
             return Oopsie 
         otherwise -> do
             putStrLn ("\n        ---")
